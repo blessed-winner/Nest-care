@@ -1,5 +1,6 @@
+import { Appointment } from "src/appointment/entities/appointment.entity";
 import { User } from "src/user/entities/user.entity";
-import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Doctor {
@@ -12,4 +13,7 @@ export class Doctor {
     @OneToOne(()=>User, user => user.doctor,{onDelete:'CASCADE'})
     @JoinColumn()
     user:User
+
+    @OneToMany(()=>Appointment,appointment => appointment.doctor)
+    appointments:Appointment[]
 }
