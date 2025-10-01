@@ -7,15 +7,6 @@ export class Doctor {
     id: number
 
     @Column()
-    firstName: string
-
-    @Column()
-    lastName: string
-
-    @Column()
-    email: string
-
-    @Column()
     specialization:string
 
     @OneToOne(()=>User, user => user.doctor)

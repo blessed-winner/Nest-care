@@ -6,12 +6,6 @@ export class Patient {
    @PrimaryGeneratedColumn()
    id:number
 
-   @Column()
-   firstName:string
-
-   @Column()
-   lastName:string
-
    @CreateDateColumn()
    dateOfBirth: Date;
 
