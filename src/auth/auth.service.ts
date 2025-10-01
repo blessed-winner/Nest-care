@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { Role, User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -23,15 +23,19 @@ export class AuthService {
     private jwtService: JwtService
   ){}
 
-  async signUp(dto: CreateUserDto,role:Role): Promise<{user?:User,patient?:Patient,doctor?:Doctor,access_token:string}> {
+  async signUp(email:string, dto: CreateUserDto,role:Role): Promise<{user?:User,patient?:Patient,doctor?:Doctor,access_token:string}> {
         const salt = await bcrypt.genSalt()
         const hashedPassword = await bcrypt.hash(dto.password,salt)
+
+        const existingUser = await this.userRepo.findOneBy({email})
+        if(existingUser) throw new ConflictException("The user already exists. Login instead")
 
         const user = this.userRepo.create({
           ...dto,
           password:hashedPassword,
           role:role,
         })
+
 
         await this.userRepo.save(user)
 

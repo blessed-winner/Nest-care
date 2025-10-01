@@ -11,17 +11,17 @@ export class AuthController {
 
   @Post('admin/register')
   async signUp(@Body() dto: CreateUserDto) {
-    return await this.authService.signUp(dto,Role.ADMIN);
+    return await this.authService.signUp(dto.email,dto,Role.ADMIN);
   }
   @Post('doctor/register')
   async doctorSignUp(@Body() dto: CreateDoctorDto){
-    return await this.authService.signUp(dto,Role.DOCTOR)
+    return await this.authService.signUp(dto.email,dto,Role.DOCTOR)
   }
   @Post('patient/register')
   async patientSignUp(@Body() dto: CreatePatientDto){
-    return await this.authService.signUp(dto,Role.PATIENT)
+    return await this.authService.signUp(dto.email,dto,Role.PATIENT)
   }
-  
+
   @Post('login')
   async logIn(
     @Body('email') email:string,

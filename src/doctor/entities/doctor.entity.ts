@@ -9,7 +9,7 @@ export class Doctor {
     @Column()
     specialization:string
 
-    @OneToOne(()=>User, user => user.doctor)
+    @OneToOne(()=>User, user => user.doctor,{onDelete:'CASCADE'})
     @JoinColumn()
     user:User
 }

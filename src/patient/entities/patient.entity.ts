@@ -9,7 +9,7 @@ export class Patient {
    @CreateDateColumn()
    dateOfBirth: Date;
 
-   @OneToOne(()=>User,user => user.patient)
+   @OneToOne(()=>User,user => user.patient,{onDelete:'CASCADE'})
    @JoinColumn()
    user:User
 }
