@@ -4,30 +4,41 @@ import { Role } from 'src/user/entities/user.entity';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { CreateDoctorDto } from 'src/doctor/dto/create-doctor.dto';
 import { CreatePatientDto } from 'src/patient/dto/create-patient.dto';
+import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { LoginDto } from 'src/user/dto/log-in-dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('admin/register')
+  @ApiBody({ type: CreateUserDto })
+  @ApiResponse({ status:201, description:"Admin created successfully" })
+  @ApiResponse({ status:400, description:"Bad Request" })
   async signUp(@Body() dto: CreateUserDto) {
     return await this.authService.signUp(dto.email,dto,Role.ADMIN);
   }
   @Post('doctor/register')
+  @ApiBody({ type: CreateDoctorDto })
+  @ApiResponse({ status:201, description:"Admin created successfully" })
+  @ApiResponse({ status:400, description:"Bad Request" })
   async doctorSignUp(@Body() dto: CreateDoctorDto){
     return await this.authService.signUp(dto.email,dto,Role.DOCTOR)
   }
   @Post('patient/register')
+  @ApiBody({ type: CreatePatientDto })
+  @ApiResponse({ status:201, description:"Admin created successfully" })
+  @ApiResponse({ status:400, description:"Bad Request" })
   async patientSignUp(@Body() dto: CreatePatientDto){
     return await this.authService.signUp(dto.email,dto,Role.PATIENT)
   }
 
   @Post('login')
-  async logIn(
-    @Body('email') email:string,
-    @Body('password') password:string,
-  ){
-    const result = await this.authService.signIn(email,password)
+  @ApiBody({ type:LoginDto })
+  @ApiResponse({ status:201, description:"User logged in successfully" })
+  @ApiResponse({ status:400, description:"Bad Request" })
+  async logIn(@Body() dto:LoginDto){
+    const result = await this.authService.signIn(dto)
     return result;
   }
 }

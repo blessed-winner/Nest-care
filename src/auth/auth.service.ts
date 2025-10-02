@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException,Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { Role, User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,6 +10,7 @@ import { CreateDoctorDto } from 'src/doctor/dto/create-doctor.dto';
 import { CreatePatientDto } from 'src/patient/dto/create-patient.dto';
 import { JwtService } from '@nestjs/jwt';
 import { generateToken } from 'src/utils/jwtutil';
+import { LoginDto } from 'src/user/dto/log-in-dto';
 
 @Injectable()
 export class AuthService {
@@ -28,7 +29,7 @@ export class AuthService {
         const hashedPassword = await bcrypt.hash(dto.password,salt)
 
         const existingUser = await this.userRepo.findOneBy({email})
-        if(existingUser) throw new ConflictException("The user already exists. Login instead")
+        if(existingUser) throw new BadRequestException("The user already exists. Login instead")
 
         const user = this.userRepo.create({
           ...dto,
@@ -61,10 +62,10 @@ export class AuthService {
         }
 }
   
-  async signIn(email:string,password:string): Promise<{user:User,access_token:string}> {
-        const existingUser = await this.userRepo.findOneBy({ email })
+  async signIn(dto:LoginDto): Promise<{user:User,access_token:string}> {
+        const existingUser = await this.userRepo.findOneBy({ email:dto.email })
         if(!existingUser) throw new NotFoundException("User not found")
-        const isPasswordValid = await bcrypt.compare(password,existingUser.password)
+        const isPasswordValid = await bcrypt.compare(dto.password,existingUser.password)
         if(!isPasswordValid) throw new UnauthorizedException("Invalid credentials")
 
         const access_token = await generateToken(existingUser.id,existingUser.role)
