@@ -12,17 +12,17 @@ export class UserController {
 
   @Post('/create/admin')
   async create(@Body() dto:CreateUserDto){
-    return this.userService.create(dto,Role.ADMIN)
+    return this.userService.create(dto.email,dto,Role.ADMIN)
   }
 
   @Post('/create/doctor')
   async createDoctor(@Body() dto:CreateDoctorDto){
-    return this.userService.create(dto,Role.DOCTOR)
+    return this.userService.create(dto.email,dto,Role.DOCTOR)
   }
 
   @Post('/create/patient')
   async createPatient(@Body() dto:CreatePatientDto){
-    return this.userService.create(dto,Role.PATIENT)
+    return this.userService.create(dto.email,dto,Role.PATIENT)
   }
 
   @Get()

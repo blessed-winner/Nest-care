@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Role, User } from './entities/user.entity';
@@ -21,9 +21,12 @@ export class UserService {
        private patientRepo: Repository<Patient>
   ){}
 
-  async create(dto:CreateUserDto,role:Role):Promise<{user?:User, doctor?:Doctor, patient?:Patient}>{
+  async create(email:string,dto:CreateUserDto,role:Role):Promise<{user?:User, doctor?:Doctor, patient?:Patient}>{
+      const existingUser = await this.userRepo.findOneBy({email})
+      if(existingUser) throw new ConflictException("The user already exists. Login instead")
       const salt = await bcrypt.genSalt()
       const hashedPassword = await bcrypt.hash(dto.password,salt)
+
 
       
       const user = this.userRepo.create({
@@ -53,8 +56,8 @@ export class UserService {
       }
   }
 
-  findAll() {
-    return `This action returns all user`;
+  async findAll(): Promise<User[]> {
+    return await this.userRepo.find()
   }
 
   findOne(id: number) {
