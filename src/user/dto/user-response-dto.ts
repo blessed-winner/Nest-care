@@ -15,7 +15,4 @@ export class UserResponseDto{
 
     @ApiProperty()
     role:string
-
-    @ApiProperty()
-    createdAt:Date
 }
