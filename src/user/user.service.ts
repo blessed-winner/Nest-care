@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Role, User } from './entities/user.entity';
@@ -60,15 +60,26 @@ export class UserService {
     return await this.userRepo.find()
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async remove(id: number):Promise<{message:string}> {
+     const userToDelete = await this.userRepo.delete({ id })
+     if(userToDelete.affected === 0 ) throw new NotFoundException("User Not Found")
+     return { message:"Success !!" }
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: number, updateUserDto: UpdateUserDto):Promise<{message:string,user:User}> {
+    const user = await this.userRepo.preload({
+      id:id,
+      ...updateUserDto
+    })
+    if(!user) throw new NotFoundException(` User with id ${id} not found`  )
+    await this.userRepo.save(user)
+    return { message: " User updated successfully ", user }
+  }
+  
+  async findOne(id:number):Promise<{user:User}>{
+       const user = await this.userRepo.findOneBy({ id })
+       if(!user) throw new NotFoundException("User Not Found")
+       return { user }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
-  }
 }
