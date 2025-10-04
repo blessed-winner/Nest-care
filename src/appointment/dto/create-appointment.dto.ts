@@ -4,10 +4,10 @@ import { AppStatus } from "../entities/appointment.entity";
 
 export class CreateAppointmentDto {
     @IsString()
-    doctor:string
+    doctorId:number
 
     @IsString()
-    patient:string
+    patientId:number
 
     @Type(()=>Date)
     @IsDate()
