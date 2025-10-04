@@ -30,4 +30,7 @@ export class Appointment {
         default:AppStatus.PENDING
     })
     status:AppStatus
+
+    @Column()
+    reason:string
 }
