@@ -12,8 +12,13 @@ constructor(
   @InjectRepository(Appointment) 
   private appointmentRepo: Repository<Appointment>
 ){}
-  create(dto: CreateAppointmentDto) {
-        
+  async create(dto: CreateAppointmentDto) {
+        const appointment = this.appointmentRepo.create({
+          ...dto
+        })
+        await this.appointmentRepo.save(appointment)
+        return { appointment }
+
   }
 
   findAll() {
