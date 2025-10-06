@@ -38,11 +38,20 @@ constructor(
       return {appointment}
   }
 
-  update(id: number, dto: UpdateAppointmentDto) {
-    return `This action updates a #${id} appointment`;
+  async update(id: number, dto: UpdateAppointmentDto):Promise<{message:string,appointmentToUpdate:Appointment}> {
+     const appointmentToUpdate = await this.appointmentRepo.preload({
+        id:id,
+        ...dto
+     })
+     if(!appointmentToUpdate) throw new NotFoundException("Appointment Not Found")
+     await this.appointmentRepo.save(appointmentToUpdate)
+
+     return { message:"Success!!!" , appointmentToUpdate }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} appointment`;
+  async remove(id: number):Promise<{message:string}> {
+     const appToDelete = await this.appointmentRepo.delete({ id })
+     if(appToDelete.affected === 0 ) throw new NotFoundException(`Appointment with id ${id} Not Found`)
+      return { message:"Success!!!" }
   }
 }
