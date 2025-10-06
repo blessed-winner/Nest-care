@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -12,21 +12,30 @@ constructor(
   @InjectRepository(Appointment) 
   private appointmentRepo: Repository<Appointment>
 ){}
-  async create(dto: CreateAppointmentDto) {
+  async create(dto: CreateAppointmentDto):Promise<{message:string,appointment:Appointment}> {
         const appointment = this.appointmentRepo.create({
           ...dto
         })
         await this.appointmentRepo.save(appointment)
-        return { appointment }
+        return { message:"Success!!", appointment }
 
   }
 
-  findAll() {
-    return `This action returns all appointment`;
+  async findAll():Promise<Appointment[]> {
+       const appointments = await this.appointmentRepo.find({
+        relations:[ 'user' ]
+       })
+       return appointments
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} appointment`;
+  async findOne(id: number):Promise<{appointment:Appointment}> {
+      const appointment = await this.appointmentRepo.findOne({
+        where: { id },
+        relations: [ 'user' ]
+      })
+      if(!appointment) throw new NotFoundException("Appointment Not Found")
+
+      return {appointment}
   }
 
   update(id: number, dto: UpdateAppointmentDto) {
