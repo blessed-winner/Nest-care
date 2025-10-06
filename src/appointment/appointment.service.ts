@@ -31,7 +31,7 @@ constructor(
   async findOne(id: number):Promise<{appointment:Appointment}> {
       const appointment = await this.appointmentRepo.findOne({
         where: { id },
-        relations: [ 'user' ]
+        relations: [ 'doctor','patient' ]
       })
       if(!appointment) throw new NotFoundException("Appointment Not Found")
 

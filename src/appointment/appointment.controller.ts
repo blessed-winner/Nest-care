@@ -39,17 +39,34 @@ export class AppointmentController {
     description:"Appointment ID",
     required:true
   })
-  @ApiResponse({ status:200, description:"Data fetched successfully" })
+  @ApiResponse({ status:201, description:"Data fetched successfully" })
+  @ApiResponse({ status:400, description:"Failed to fetch department data" })
   findOne(@Param('id') id: string) {
     return this.appointmentService.findOne(+id);
   }
 
   @Patch(':id')
+  @ApiParam({
+    name:'id',
+    type:String,
+    description:"Appointment ID",
+    required:true
+  })
+  @ApiResponse({ status:201, description:"Data updated successfully" })
+  @ApiResponse({ status:400, description:"Failed to update department data" })
   update(@Param('id') id: string, @Body() updateAppointmentDto: UpdateAppointmentDto) {
     return this.appointmentService.update(+id, updateAppointmentDto);
   }
 
   @Delete(':id')
+    @ApiParam({
+    name:'id',
+    type:String,
+    description:"Appointment ID",
+    required:true
+  })
+  @ApiResponse({ status:201, description:"Data deleted successfully" })
+  @ApiResponse({ status:400, description:"Failed to delete department data" })
   remove(@Param('id') id: string) {
     return this.appointmentService.remove(+id);
   }
