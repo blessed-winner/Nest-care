@@ -16,14 +16,20 @@ constructor(
         const appointment = this.appointmentRepo.create({
           ...dto
         })
-        await this.appointmentRepo.save(appointment)
+        await this.appointmentRepo.save({
+          doctor:{ id:dto.doctorId },
+          patient:{ id:dto.patientId },
+          appointmentDate:dto.appointmentDate,
+          status:dto.status,
+          reason:dto.reason
+        })
         return { message:"Success!!", appointment }
 
   }
 
   async findAll():Promise<Appointment[]> {
        const appointments = await this.appointmentRepo.find({
-        relations:[ 'user' ]
+        relations:[ 'doctor','patient' ]
        })
        return appointments
   }

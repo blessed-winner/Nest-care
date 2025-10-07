@@ -39,8 +39,12 @@ export class AppointmentController {
     description:"Appointment ID",
     required:true
   })
-  @ApiResponse({ status:201, description:"Data fetched successfully" })
-  @ApiResponse({ status:400, description:"Failed to fetch department data" })
+  @ApiResponse({
+    status:201,
+    type:[AppointmentResponseDto],
+    description:"Appointment data"
+  })
+  @ApiResponse({ status:400, description:"Failed to fetch appointment data" })
   findOne(@Param('id') id: string) {
     return this.appointmentService.findOne(+id);
   }
@@ -53,7 +57,7 @@ export class AppointmentController {
     required:true
   })
   @ApiResponse({ status:201, description:"Data updated successfully" })
-  @ApiResponse({ status:400, description:"Failed to update department data" })
+  @ApiResponse({ status:400, description:"Failed to update appointment data" })
   update(@Param('id') id: string, @Body() updateAppointmentDto: UpdateAppointmentDto) {
     return this.appointmentService.update(+id, updateAppointmentDto);
   }
@@ -66,7 +70,7 @@ export class AppointmentController {
     required:true
   })
   @ApiResponse({ status:201, description:"Data deleted successfully" })
-  @ApiResponse({ status:400, description:"Failed to delete department data" })
+  @ApiResponse({ status:400, description:"Failed to delete appointment data" })
   remove(@Param('id') id: string) {
     return this.appointmentService.remove(+id);
   }

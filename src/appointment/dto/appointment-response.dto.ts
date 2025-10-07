@@ -1,12 +1,13 @@
 import { IsDate, IsInt, IsString } from "class-validator";
+import { Doctor } from "src/doctor/entities/doctor.entity";
+import { Patient } from "src/patient/entities/patient.entity";
 
 
 export class AppointmentResponseDto{
-       @IsInt()
-       doctorId:number
+       
+       doctor:Doctor
 
-       @IsInt()
-       patientId:number
+       patient:Patient
 
        @IsDate()
        appointmentDate:Date

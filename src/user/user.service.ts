@@ -57,7 +57,9 @@ export class UserService {
   }
 
   async findAll(): Promise<User[]> {
-    return await this.userRepo.find()
+    return await this.userRepo.find({
+      relations:['patient','doctor']
+    })
   }
 
   async remove(id: number):Promise<{message:string}> {
@@ -77,7 +79,10 @@ export class UserService {
   }
   
   async findOne(id:number):Promise<{user:User}>{
-       const user = await this.userRepo.findOneBy({ id })
+       const user = await this.userRepo.findOne({ 
+         where: { id },
+         relations: [ 'patient','doctor' ]
+        })
        if(!user) throw new NotFoundException("User Not Found")
        return { user }
   }

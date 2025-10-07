@@ -54,8 +54,12 @@ export class UserController {
     required:true,
     description:"The ID of the user"
   })
-  @ApiResponse({ status:201, description:"Appointment loaded" })
-  @ApiResponse({ status:400, description:"Failed to fetch appointment" })
+   @ApiResponse({
+      status:201,
+      type:[UserResponseDto],
+      description:"User data"
+    })
+  @ApiResponse({ status:400, description:"Failed to fetch user" })
   findOne(@Param('id') id: string) {
     return this.userService.findOne(+id);
   }
@@ -67,8 +71,8 @@ export class UserController {
     required:true,
     description:"The ID of the user"
   })
-  @ApiResponse({ status:201, description:"Appointment updated" })
-  @ApiResponse({ status:400, description:"Failed to update appointment" })
+  @ApiResponse({ status:201, description:"User updated" })
+  @ApiResponse({ status:400, description:"Failed to update user" })
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(+id, updateUserDto);
   }
@@ -80,8 +84,8 @@ export class UserController {
     required:true,
     description:"The ID of the user"
   })
-  @ApiResponse({ status:201, description:"Appointment deleted" })
-  @ApiResponse({ status:400, description:"Failed to delete appointment" })
+  @ApiResponse({ status:201, description:"User deleted" })
+  @ApiResponse({ status:400, description:"Failed to delete user" })
   remove(@Param('id') id: string) {
     return this.userService.remove(+id);
   }
