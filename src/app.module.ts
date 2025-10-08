@@ -2,8 +2,6 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
-import { PatientModule } from './patient/patient.module';
-import { DoctorModule } from './doctor/doctor.module';
 import { AppointmentModule } from './appointment/appointment.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
@@ -33,7 +31,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
        synchronize:true
       })
      }),
-    AuthModule, PatientModule, DoctorModule, AppointmentModule, UserModule
+    AuthModule, AppointmentModule, UserModule
   ],
   controllers: [AppController],
   providers: [AppService],
