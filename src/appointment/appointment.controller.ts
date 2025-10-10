@@ -14,7 +14,6 @@ import { Role } from 'src/user/entities/user.entity';
 export class AppointmentController {
   constructor(private readonly appointmentService: AppointmentService) {}
 
-  @Roles(Role.PATIENT)
   @Post('/create')
   @ApiBody({type:CreateAppointmentDto})
   @ApiResponse({ status:201, description:"Appointment created successfully" })
@@ -23,7 +22,7 @@ export class AppointmentController {
     return this.appointmentService.create(createAppointmentDto);
   }
 
-  @Roles(Role.PATIENT)
+  @Roles(Role.ADMIN)
   @Get('/All')
   @ApiResponse({
     status:201,
@@ -38,6 +37,7 @@ export class AppointmentController {
     return this.appointmentService.findAll();
   }
 
+  @Roles(Role.ADMIN)
   @Get(':id')
   @ApiParam({
     name:'id',
@@ -54,7 +54,8 @@ export class AppointmentController {
   findOne(@Param('id') id: string) {
     return this.appointmentService.findOne(+id);
   }
-
+  
+  @Roles(Role.ADMIN)
   @Patch(':id')
   @ApiParam({
     name:'id',
@@ -68,6 +69,7 @@ export class AppointmentController {
     return this.appointmentService.update(+id, updateAppointmentDto);
   }
 
+  @Roles(Role.ADMIN)
   @Delete(':id')
     @ApiParam({
     name:'id',
