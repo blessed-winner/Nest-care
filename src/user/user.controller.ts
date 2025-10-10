@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -7,11 +7,17 @@ import { CreateDoctorDto } from 'src/doctor/dto/create-doctor.dto';
 import { CreatePatientDto } from 'src/patient/dto/create-patient.dto';
 import { ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { UserResponseDto } from './dto/user-response-dto';
+import { JwtAuthGuard } from 'src/utils/guards/jwt.guard';
+import { RolesGuard } from 'src/utils/guards/roles.guard';
+import { Roles } from 'src/utils/decorator/roles.decorator';
 
+@UseGuards(RolesGuard,JwtAuthGuard)
+@Roles(Role.ADMIN)
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+ 
   @Post('/create/admin')
   @ApiBody({ type:CreateUserDto })
   @ApiResponse({ status:201, description:"User created successfully" })
