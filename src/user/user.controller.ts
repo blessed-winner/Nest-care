@@ -11,13 +11,11 @@ import { JwtAuthGuard } from 'src/utils/guards/jwt.guard';
 import { RolesGuard } from 'src/utils/guards/roles.guard';
 import { Roles } from 'src/utils/decorator/roles.decorator';
 
-@UseGuards(JwtAuthGuard,RolesGuard)
-@Roles(Role.ADMIN)
+//@UseGuards(JwtAuthGuard,RolesGuard)
+//@Roles(Role.ADMIN)
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-
- 
   @Post('/create/admin')
   @ApiBody({ type:CreateUserDto })
   @ApiResponse({ status:201, description:"User created successfully" })
@@ -94,5 +92,10 @@ export class UserController {
   @ApiResponse({ status:400, description:"Failed to delete user" })
   remove(@Param('id') id: string) {
     return this.userService.remove(+id);
+  }
+
+  @Get(':userId/appointments')
+  getAppointments(@Param('userId') userId:string){
+     return this.userService.fetchUserAppointments(+userId)
   }
 }

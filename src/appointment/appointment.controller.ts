@@ -82,4 +82,5 @@ export class AppointmentController {
   remove(@Param('id') id: string) {
     return this.appointmentService.remove(+id);
   }
+
 }

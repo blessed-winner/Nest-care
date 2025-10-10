@@ -9,6 +9,7 @@ import { Doctor } from 'src/doctor/entities/doctor.entity';
 import { Patient } from 'src/patient/entities/patient.entity';
 import { CreateDoctorDto } from 'src/doctor/dto/create-doctor.dto';
 import { CreatePatientDto } from 'src/patient/dto/create-patient.dto';
+import { Appointment } from 'src/appointment/entities/appointment.entity';
 
 @Injectable()
 export class UserService {
@@ -85,6 +86,35 @@ export class UserService {
         })
        if(!user) throw new NotFoundException("User Not Found")
        return { user }
+  }
+
+async fetchUserAppointments(userId:number): Promise<{message:string,appointments:Appointment[] | []}> {
+      const user = await this.userRepo.findOne({ 
+        where: { id:userId },
+      },)
+      if(!user) throw new NotFoundException("User Not Found")
+
+      if(user.role === Role.DOCTOR){
+         const doctor = await this.doctorRepo.findOne({
+          where: { user:{id:userId} },
+          relations: [ "appointments" ]
+         })
+         const appointments = doctor?.appointments || []
+
+         return { message:"Doctor appointments",appointments }
+      }
+      else if(user.role === Role.PATIENT){
+        const patient = await this.patientRepo.findOne({
+          where: { user:{ id:userId } },
+          relations: [ "appointments" ]
+        })
+        const appointments = patient?.appointments || []
+
+        return { message:"Patient appointments",appointments }
+      } else {
+         return { message:"No appointments Found",appointments:[]}
+      }
+
   }
 
 }

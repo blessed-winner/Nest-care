@@ -15,11 +15,7 @@ constructor(
   @InjectRepository(Appointment) 
   private appointmentRepo: Repository<Appointment>,
   @InjectRepository(User)
-  private userRepo: Repository<User>,
-  @InjectRepository(Doctor)
-  private doctorRepo:Repository<Doctor>,
-  @InjectRepository(Patient)
-  private patientRepo: Repository<Patient>
+  private userRepo: Repository<User>
 ){}
   async create(dto: CreateAppointmentDto):Promise<{message:string,appointment:Appointment}> {
         const appointment = this.appointmentRepo.create({
@@ -68,34 +64,5 @@ constructor(
      const appToDelete = await this.appointmentRepo.delete({ id })
      if(appToDelete.affected === 0 ) throw new NotFoundException(`Appointment with id ${id} Not Found`)
       return { message:"Success!!!" }
-  }
-
-  async fetchUserAppointments(userId:number): Promise<{message:string,appointments:Appointment[] | []}> {
-      const user = await this.userRepo.findOne({ 
-        where: { id:userId },
-      },)
-      if(!user) throw new NotFoundException("User Not Found")
-
-      if(user.role === Role.DOCTOR){
-         const doctor = await this.doctorRepo.findOne({
-          where: { user:{id:userId} },
-          relations: [ "appointment" ]
-         })
-         const appointments = doctor?.appointments || []
-
-         return { message:"Doctor appointments",appointments }
-      }
-      else if(user.role === Role.PATIENT){
-        const patient = await this.patientRepo.findOne({
-          where: { user:{ id:userId } },
-          relations: [ "appointment" ]
-        })
-        const appointments = patient?.appointments || []
-
-        return { message:"Patient appointments",appointments }
-      } else {
-         return { message:"No appointments Found",appointments:[]}
-      }
-
   }
 }
