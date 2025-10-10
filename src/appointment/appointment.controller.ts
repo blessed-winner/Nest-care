@@ -1,15 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { AppointmentService } from './appointment.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { AppointmentResponseDto } from './dto/appointment-response.dto';
+import { JwtAuthGuard } from 'src/utils/guards/jwt.guard';
+import { RolesGuard } from 'src/utils/guards/roles.guard';
+import { Roles } from 'src/utils/decorator/roles.decorator';
+import { Role } from 'src/user/entities/user.entity';
 
+@UseGuards(JwtAuthGuard,RolesGuard)
 @Controller('appointment')
 export class AppointmentController {
   constructor(private readonly appointmentService: AppointmentService) {}
 
-  
+  @Roles(Role.PATIENT)
   @Post('/create')
   @ApiBody({type:CreateAppointmentDto})
   @ApiResponse({ status:201, description:"Appointment created successfully" })
@@ -18,6 +23,7 @@ export class AppointmentController {
     return this.appointmentService.create(createAppointmentDto);
   }
 
+  @Roles(Role.PATIENT)
   @Get('/All')
   @ApiResponse({
     status:201,
