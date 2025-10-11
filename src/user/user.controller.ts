@@ -1,8 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, SetMetadata } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Role } from './entities/user.entity';
+import { Role, User } from './entities/user.entity';
 import { CreateDoctorDto } from 'src/doctor/dto/create-doctor.dto';
 import { CreatePatientDto } from 'src/patient/dto/create-patient.dto';
 import { ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
@@ -10,6 +10,7 @@ import { UserResponseDto } from './dto/user-response-dto';
 import { JwtAuthGuard } from 'src/utils/guards/jwt.guard';
 import { RolesGuard } from 'src/utils/guards/roles.guard';
 import { Roles } from 'src/utils/decorator/roles.decorator';
+import { Request } from 'express';
 
 @UseGuards(JwtAuthGuard,RolesGuard)
 @Roles(Role.ADMIN)
@@ -94,8 +95,19 @@ export class UserController {
     return this.userService.remove(+id);
   }
 
+ 
   @Get(':userId/appointments')
+  @ApiResponse({ status:201, description:"User appointments" })
+  @ApiResponse({ status:400, description:"Failed to fetch user appointments" })
   getAppointments(@Param('userId') userId:string){
      return this.userService.fetchUserAppointments(+userId)
+  }
+
+  @SetMetadata('isPublic',true)
+  @Get('me/appointments')
+  @ApiResponse({status:201, description:"My Appointments"})
+  @ApiResponse({status:400, description:"Your appointments are not found"})
+  getMyAppointments(@Req() req:Request){
+    return this.userService.fetchUserAppointments((req.user as User)?.id)
   }
 }
