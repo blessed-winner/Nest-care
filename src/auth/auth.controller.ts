@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Patch, Param } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Role } from 'src/user/entities/user.entity';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
@@ -20,17 +20,22 @@ export class AuthController {
   }
   @Post('doctor/register')
   @ApiBody({ type: CreateDoctorDto })
-  @ApiResponse({ status:201, description:"Admin created successfully" })
+  @ApiResponse({ status:201, description:"Doctor created successfully" })
   @ApiResponse({ status:400, description:"Bad Request" })
   async doctorSignUp(@Body() dto: CreateDoctorDto){
     return await this.authService.signUp(dto.email,dto,Role.DOCTOR)
   }
   @Post('patient/register')
   @ApiBody({ type: CreatePatientDto })
-  @ApiResponse({ status:201, description:"Admin created successfully" })
+  @ApiResponse({ status:201, description:"Patient created successfully" })
   @ApiResponse({ status:400, description:"Bad Request" })
   async patientSignUp(@Body() dto: CreatePatientDto){
     return await this.authService.signUp(dto.email,dto,Role.PATIENT)
+  }
+
+  @Patch()
+  async verifyEmail(@Param('token') token:string){
+    return await this.authService.verifyUser(token)
   }
 
   @Post('login')
