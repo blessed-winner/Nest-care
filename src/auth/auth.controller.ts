@@ -33,7 +33,9 @@ export class AuthController {
     return await this.authService.signUp(dto.email,dto,Role.PATIENT)
   }
 
-  @Patch()
+  @Patch('/verify-user')
+  @ApiResponse({ status:201, description:"User verified successfully" })
+  @ApiResponse({ status:400, description:"Bad Request" })
   async verifyEmail(@Param('token') token:string){
     return await this.authService.verifyUser(token)
   }
