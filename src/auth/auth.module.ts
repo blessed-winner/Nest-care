@@ -9,8 +9,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from 'src/utils/strategies/jwt.strategy';
-import { MailerService } from './mailer/mailer.service';
-import { MailerController } from './mailer/mailer.controller';
 
 @Global()
 @Module({
@@ -26,8 +24,8 @@ import { MailerController } from './mailer/mailer.controller';
     }),
     TypeOrmModule.forFeature([ User, Doctor, Patient ])
   ],
-  controllers: [AuthController, MailerController],
-  providers: [AuthService, JwtStrategy, MailerService],
+  controllers: [AuthController],
+  providers: [AuthService, JwtStrategy],
   exports: [PassportModule, JwtModule, JwtStrategy]
 })
 export class AuthModule {}
