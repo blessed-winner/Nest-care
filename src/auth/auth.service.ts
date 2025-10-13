@@ -12,6 +12,7 @@ import { JwtService } from '@nestjs/jwt';
 import { generateToken } from 'src/utils/jwtutil';
 import { LoginDto } from 'src/user/dto/log-in-dto';
 import { ConfigService } from '@nestjs/config';
+import { MailerService } from './mailer/mailer.service';
 
 @Injectable()
 export class AuthService {
@@ -23,7 +24,8 @@ export class AuthService {
     @InjectRepository(Patient)
     private patientRepo: Repository<Patient>,
     private jwtService: JwtService,
-    private configService:ConfigService
+    private configService:ConfigService,
+    private mailerService:MailerService
   ){}
 
   async signUp(email:string, dto: CreateUserDto,role:Role): Promise<{user?:User,patient?:Patient,doctor?:Doctor,access_token:string}> {
@@ -57,11 +59,30 @@ export class AuthService {
 
         const token = await generateToken(user.id,user.role,this.configService,this.jwtService)
 
+        await this.mailerService.sendVerificationEmail(user.email,token)
+
         return{user: role === Role.ADMIN ? user : undefined,
            doctor,
            patient,
           access_token:token
         }
+}
+
+
+async verifyUser(token:string):Promise<{message:string}>{
+    const payload = await this.jwtService.verifyAsync(token)
+    const existingUser = await this.userRepo.findOneBy({ email:payload.email })
+    if(!existingUser) throw new NotFoundException("User Not Found")
+    
+    if(existingUser && existingUser.isVerified === true ){
+        throw new BadRequestException("User already verified")
+    }
+
+    existingUser.isVerified = true
+
+    await this.userRepo.save(existingUser)
+
+    return { message:"User verified successfully" }
 }
   
   async signIn(dto:LoginDto): Promise<{user:User,access_token:string}> {
