@@ -14,7 +14,7 @@ async function bootstrap() {
     bearerFormat:'JWT',
     name:'Authorization',
     in:'header'
-  }, 'access_token')
+  }, 'jwt')
   .build()
 
   const document = SwaggerModule.createDocument(app,config)

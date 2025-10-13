@@ -5,13 +5,14 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { Role, User } from './entities/user.entity';
 import { CreateDoctorDto } from 'src/doctor/dto/create-doctor.dto';
 import { CreatePatientDto } from 'src/patient/dto/create-patient.dto';
-import { ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { UserResponseDto } from './dto/user-response-dto';
 import { JwtAuthGuard } from 'src/utils/guards/jwt.guard';
 import { RolesGuard } from 'src/utils/guards/roles.guard';
 import { Roles } from 'src/utils/decorator/roles.decorator';
 import { Request } from 'express';
 
+@ApiBearerAuth('jwt')
 @UseGuards(JwtAuthGuard,RolesGuard)
 @Roles(Role.ADMIN)
 @Controller('users')
