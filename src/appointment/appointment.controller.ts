@@ -2,13 +2,14 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@n
 import { AppointmentService } from './appointment.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
-import { ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { AppointmentResponseDto } from './dto/appointment-response.dto';
 import { JwtAuthGuard } from 'src/utils/guards/jwt.guard';
 import { RolesGuard } from 'src/utils/guards/roles.guard';
 import { Roles } from 'src/utils/decorator/roles.decorator';
 import { Role } from 'src/user/entities/user.entity';
 
+@ApiBearerAuth('jwt')
 @UseGuards(JwtAuthGuard,RolesGuard)
 @Controller('appointment')
 export class AppointmentController {

@@ -11,6 +11,7 @@ import { CreatePatientDto } from 'src/patient/dto/create-patient.dto';
 import { JwtService } from '@nestjs/jwt';
 import { generateToken } from 'src/utils/jwtutil';
 import { LoginDto } from 'src/user/dto/log-in-dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -21,7 +22,8 @@ export class AuthService {
     private doctorRepo: Repository<Doctor>,
     @InjectRepository(Patient)
     private patientRepo: Repository<Patient>,
-    private jwtService: JwtService
+    private jwtService: JwtService,
+    private configService:ConfigService
   ){}
 
   async signUp(email:string, dto: CreateUserDto,role:Role): Promise<{user?:User,patient?:Patient,doctor?:Doctor,access_token:string}> {
@@ -53,7 +55,7 @@ export class AuthService {
           await this.patientRepo.save(patient)
         }
 
-        const token = await generateToken(user.id,user.role)
+        const token = await generateToken(user.id,user.role,this.configService,this.jwtService)
 
         return{user: role === Role.ADMIN ? user : undefined,
            doctor,
@@ -68,7 +70,7 @@ export class AuthService {
         const isPasswordValid = await bcrypt.compare(dto.password,existingUser.password)
         if(!isPasswordValid) throw new UnauthorizedException("Invalid credentials")
 
-        const access_token = await generateToken(existingUser.id,existingUser.role)
+        const access_token = await generateToken(existingUser.id,existingUser.role,this.configService, this.jwtService)
 
         return { user:existingUser, access_token }
   }

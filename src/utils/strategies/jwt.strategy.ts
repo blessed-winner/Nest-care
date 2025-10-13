@@ -10,7 +10,7 @@ import { Repository } from "typeorm"
 export type JwtPayload = {
     id:number,
     email:string,
-    role:Role[]
+    role:Role
 }
 
 @Injectable()
@@ -26,13 +26,13 @@ export class JwtStrategy extends PassportStrategy(Strategy,'jwt'){
         })
     }
 
-    async validate(payload:JwtPayload):Promise<User>{
+    async validate(payload:JwtPayload):Promise<{ id:number, role:Role, email:string  }>{
         const user = await this.userRepo.findOneBy({ id:payload.id })
 
         if(!user){
             throw new NotFoundException("User Not Found")
         }
 
-        return user
+        return { id:user.id, role:user.role, email:user.email }
     }
 }
