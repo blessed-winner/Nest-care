@@ -69,21 +69,29 @@ export class AuthService {
 }
 
 
-async verifyUser(token:string):Promise<{message:string}>{
-    const payload = await this.jwtService.verifyAsync(token)
-    const existingUser = await this.userRepo.findOneBy({ email:payload.email })
-    if(!existingUser) throw new NotFoundException("User Not Found")
-    
-    if(existingUser && existingUser.isVerified === true ){
-        throw new BadRequestException("User already verified")
-    }
+async verifyUser(token: string): Promise<{ message: string }> {
+  let payload;
+  try {
+    payload = await this.jwtService.verifyAsync(token);
+  } catch (err) {
+    throw new BadRequestException('Invalid or expired token');
+  }
 
-    existingUser.isVerified = true
+  const existingUser = await this.userRepo.findOneBy({ id: payload.id });
+  if (!existingUser) throw new NotFoundException('User not found');
 
-    await this.userRepo.save(existingUser)
+  if (existingUser.isVerified) {
+    throw new BadRequestException('User already verified');
+  }
 
-    return { message:"User verified successfully" }
+  existingUser.isVerified = true;
+  await this.userRepo.save(existingUser);
+
+  console.log("User updated successfully", existingUser)
+  return { message: 'User verified successfully' };
+  
 }
+
   
   async signIn(dto:LoginDto): Promise<{user:User,access_token:string}> {
         const existingUser = await this.userRepo.findOneBy({ email:dto.email })
