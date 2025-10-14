@@ -48,6 +48,13 @@ export class AuthController {
     
   }
 
+  @Post('resend-verification')
+  @ApiResponse({ status:201, description:"User verified successfully" })
+  @ApiResponse({ status:400, description:"Bad Request" })
+  async resendVerificationEmail(@Body('email') email:string){
+    await this.authService.resendVerification(email)
+  }
+
   @Post('login')
   @ApiBody({ type:LoginDto })
   @ApiResponse({ status:201, description:"User logged in successfully" })

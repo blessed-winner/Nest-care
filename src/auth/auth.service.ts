@@ -91,6 +91,19 @@ async verifyUser(token: string): Promise<{ message: string }> {
   
 }
 
+async resendVerification(email:string):Promise<{message:string}>{
+  try {
+  const user = await this.userRepo.findOneBy({ email })
+  if(!user) throw new NotFoundException("User Not Found")
+  if(user.isVerified) throw new BadRequestException("The user is already verified")
+  const resend_token = await generateToken(user.id, user.role,this.configService,this.jwtService)
+  await this.mailerService.sendVerificationEmail(email, resend_token,user.firstName)
+  return { message:"Verification email sent successfully" }
+  } catch (error) {
+     return { message:error.message }
+  }
+}
+
   
   async signIn(dto:LoginDto): Promise<{user:User,access_token:string}> {
         const existingUser = await this.userRepo.findOneBy({ email:dto.email })
