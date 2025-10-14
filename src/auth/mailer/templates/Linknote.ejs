@@ -1,0 +1,200 @@
+<!-- resend-confirmation.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Verification Email Sent</title>
+  <style>
+    :root{
+      --bg: #f6fbff;
+      --card: #ffffff;
+      --accent: #3b82f6;
+      --muted: #6b7280;
+      --success: #10b981;
+      --shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
+    }
+    *{box-sizing: border-box}
+    body{
+      margin:0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg, #eef6ff 0%, var(--bg) 100%);
+      color:#0f172a;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+    }
+
+    .card{
+      width:100%;
+      max-width:760px;
+      background:var(--card);
+      border-radius:14px;
+      box-shadow:var(--shadow);
+      padding:28px;
+      display:grid;
+      grid-template-columns: 1fr 360px;
+      gap:18px;
+      align-items:center;
+    }
+
+    @media (max-width:820px){
+      .card{ grid-template-columns: 1fr; padding:20px; }
+      .aside{ order: -1; }
+    }
+
+    .content h1{
+      margin:0 0 8px 0;
+      font-size:22px;
+      letter-spacing:-0.2px;
+      color:#0b1220;
+    }
+    .content p{
+      margin:0 0 18px 0;
+      color:var(--muted);
+      line-height:1.55;
+      font-size:15px;
+    }
+
+    .email-pill{
+      display:inline-block;
+      background:#f1f5f9;
+      padding:8px 12px;
+      border-radius:999px;
+      color:#0b1220;
+      font-weight:600;
+      font-size:14px;
+      margin-bottom:8px;
+      box-shadow: 0 2px 6px rgba(11,18,32,0.04) inset;
+    }
+
+    .actions{
+      margin-top:14px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding:10px 16px;
+      border-radius:10px;
+      text-decoration:none;
+      font-weight:600;
+      cursor:pointer;
+      border:0;
+      transition:transform .12s ease, box-shadow .12s;
+    }
+    .btn-primary{
+      background:var(--accent);
+      color:white;
+      box-shadow: 0 6px 18px rgba(59,130,246,0.18);
+    }
+    .btn-primary:hover{ transform:translateY(-2px); }
+
+    .btn-link{
+      background:transparent;
+      color:var(--accent);
+      padding:8px 12px;
+      font-weight:600;
+      border-radius:8px;
+    }
+
+    .aside{
+      background:linear-gradient(180deg, rgba(59,130,246,0.06), rgba(59,130,246,0.02));
+      border-radius:12px;
+      padding:22px;
+      text-align:center;
+    }
+
+    .icon-circle{
+      width:84px;
+      height:84px;
+      display:inline-grid;
+      place-items:center;
+      margin:0 auto 12px;
+      border-radius:999px;
+      background:linear-gradient(135deg,var(--success),#0ea5a3);
+      color:white;
+      font-size:34px;
+      box-shadow: 0 8px 30px rgba(16,185,129,0.16);
+    }
+
+    .aside p{ color:var(--muted); margin:0; font-size:14px; line-height:1.45; }
+    .small{ font-size:13px; color:#94a3b8; margin-top:12px; }
+
+    .countdown { font-weight:700; color:var(--muted); }
+
+  </style>
+</head>
+<body>
+  <main class="card" role="main">
+    <section class="content" aria-labelledby="title">
+      <h1 id="title">Check your inbox</h1>
+
+      <div class="email-pill" aria-hidden="false">
+        <% if (typeof email !== 'undefined' && email) { %>
+          <%= email %>
+        <% } else { %>
+          The email address you provided
+        <% } %>
+      </div>
+
+      <p>
+        We just sent a verification link to the address above. Click the link in the email to confirm your account.
+        If you don't see it, check your spam or junk folder — sometimes it hides there.
+      </p>
+
+      <div class="actions">
+        <a href="<%= redirectUrl || '/' %>" class="btn btn-primary">Go to Home</a>
+        <form id="resendForm" method="post" action="<%= resendEndpoint || '/auth/resend-verification' %>" style="display:inline">
+          <% if (typeof email !== 'undefined' && email) { %>
+            <input type="hidden" name="email" value="<%= email %>"/>
+          <% } %>
+          <button type="submit" class="btn btn-link">Resend verification email</button>
+        </form>
+      </div>
+
+      <p class="small">Didn't receive an email? You can resend it. For security, resends may be rate-limited.</p>
+    </section>
+
+    <aside class="aside">
+      <div class="icon-circle">✓</div>
+      <p><strong>Sent — almost done</strong></p>
+      <p class="small">We sent an email with a verification link. This link will expire in <span class="countdown" id="countdown">60:00</span> minutes.</p>
+      <p style="margin-top:14px"><a href="<%= supportUrl || 'mailto:support@example.com' %>" class="btn-link">Contact support</a></p>
+    </aside>
+  </main>
+
+  <script>
+    // Optional: countdown in mm:ss from secondsPassed (default 3600 seconds -> 60:00)
+    (function(){
+      var total = typeof tokenExpirySeconds !== 'undefined' ? Number(tokenExpirySeconds) : 3600;
+      var el = document.getElementById('countdown');
+
+      function fmt(t){ 
+        var mm = Math.floor(t/60).toString().padStart(2,'0');
+        var ss = (t%60).toString().padStart(2,'0');
+        return mm + ':' + ss;
+      }
+
+      if (!el) return;
+      el.textContent = fmt(total);
+
+      var interval = setInterval(function(){
+        total = total - 1;
+        if (total <= 0) { el.textContent = 'expired'; clearInterval(interval); return; }
+        el.textContent = fmt(total);
+      }, 1000);
+    })();
+  </script>
+</body>
+</html>
