@@ -1,9 +1,16 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import * as path from 'path';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  //EJS setup
+  app.setBaseViewsDir(path.join(process.cwd(),'src','auth','mailer','templates'))
+  app.setViewEngine('ejs')
+
   const config = new DocumentBuilder()
   .setTitle("NEST-CARE API")
   .setDescription("Api for minimalist hospital management system")

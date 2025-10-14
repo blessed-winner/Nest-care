@@ -87,7 +87,6 @@ async verifyUser(token: string): Promise<{ message: string }> {
   existingUser.isVerified = true;
   await this.userRepo.save(existingUser);
 
-  console.log("User updated successfully", existingUser)
   return { message: 'User verified successfully' };
   
 }
