@@ -28,6 +28,7 @@ export class AuthService {
     private mailerService:MailerService
   ){}
 
+  //Sign Up
   async signUp(email:string, dto: CreateUserDto,role:Role): Promise<{user?:User,patient?:Patient,doctor?:Doctor,access_token:string}> {
         const salt = await bcrypt.genSalt()
         const hashedPassword = await bcrypt.hash(dto.password,salt)
@@ -68,7 +69,7 @@ export class AuthService {
         }
 }
 
-
+//Email verification
 async verifyUser(token: string): Promise<{ message: string }> {
   let payload;
   try {
@@ -91,6 +92,7 @@ async verifyUser(token: string): Promise<{ message: string }> {
   
 }
 
+//Resend verification link
 async resendVerification(email:string):Promise<{message:string}>{
   try {
   const user = await this.userRepo.findOneBy({ email })
@@ -104,7 +106,7 @@ async resendVerification(email:string):Promise<{message:string}>{
   }
 }
 
-  
+  //Log in
   async signIn(dto:LoginDto): Promise<{user:User,access_token:string}> {
         const existingUser = await this.userRepo.findOneBy({ email:dto.email })
         if(!existingUser) throw new NotFoundException("User not found")

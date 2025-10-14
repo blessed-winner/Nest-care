@@ -11,7 +11,8 @@ import { Response } from 'express';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
-
+  
+  //Register admin
   @Post('admin/register')
   @ApiBody({ type: CreateUserDto })
   @ApiResponse({ status:201, description:"Admin created successfully" })
@@ -19,6 +20,8 @@ export class AuthController {
   async signUp(@Body() dto: CreateUserDto) {
     return await this.authService.signUp(dto.email,dto,Role.ADMIN);
   }
+
+  //Register doctor
   @Post('doctor/register')
   @ApiBody({ type: CreateDoctorDto })
   @ApiResponse({ status:201, description:"Doctor created successfully" })
@@ -26,6 +29,8 @@ export class AuthController {
   async doctorSignUp(@Body() dto: CreateDoctorDto){
     return await this.authService.signUp(dto.email,dto,Role.DOCTOR)
   }
+
+  //Register patient
   @Post('patient/register')
   @ApiBody({ type: CreatePatientDto })
   @ApiResponse({ status:201, description:"Patient created successfully" })
@@ -34,9 +39,11 @@ export class AuthController {
     return await this.authService.signUp(dto.email,dto,Role.PATIENT)
   }
 
+  //Verify the user
   @Get('/verify-user')
   @ApiResponse({ status:201, description:"User verified successfully" })
   @ApiResponse({ status:400, description:"Bad Request" })
+  @ApiResponse({ status:404,  description:"User not Found" })
   async verifyEmail(@Query('token') token:string, @Res() res:Response){
     try{
         await this.authService.verifyUser(token)
@@ -48,17 +55,22 @@ export class AuthController {
     
   }
 
+  //Resend verification link
   @Post('resend-verification')
-  @ApiResponse({ status:201, description:"User verified successfully" })
-  @ApiResponse({ status:400, description:"Bad Request" })
+  @ApiResponse({ status: 200, description: "Verification email resent successfully" })
+  @ApiResponse({ status: 400, description: "Bad Request" })
+  @ApiResponse({ status: 404, description: "User not found" })
   async resendVerificationEmail(@Body('email') email:string){
-    await this.authService.resendVerification(email)
+    const result = await this.authService.resendVerification(email)
+    return result
   }
 
+  //Sign in
   @Post('login')
   @ApiBody({ type:LoginDto })
   @ApiResponse({ status:201, description:"User logged in successfully" })
   @ApiResponse({ status:400, description:"Bad Request" })
+  @ApiResponse({ status:404,  description:"User not Found" })
   async logIn(@Body() dto:LoginDto){
     const result = await this.authService.signIn(dto)
     return result;
