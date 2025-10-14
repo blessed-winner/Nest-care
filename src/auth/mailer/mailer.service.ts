@@ -29,11 +29,11 @@ export class MailerService implements OnModuleInit {
          } as SMTPTransport.Options)
     }
 
-    async sendVerificationEmail(to:string,token:string){
+    async sendVerificationEmail(to:string,token:string,name:string){
         try{
         const verificationUrl = `http://localhost:3000/auth/verify-user?token=${token}`
         const templatePath =  path.join(process.cwd(),"src","auth","mailer","templates","verify-email.ejs")
-        const htmlContent = await ejs.renderFile(templatePath,{verificationUrl})
+        const htmlContent = await ejs.renderFile(templatePath,{verificationUrl,name})
 
         const info = await this.transporter.sendMail({
             from: '"Nest-care" <noreply@nestcare.test>',

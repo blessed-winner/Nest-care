@@ -59,7 +59,7 @@ export class AuthService {
 
         const token = await generateToken(user.id,user.role,this.configService,this.jwtService)
 
-        await this.mailerService.sendVerificationEmail(user.email,token)
+        await this.mailerService.sendVerificationEmail(user.email,token,user.firstName)
 
         return{user: role === Role.ADMIN ? user : undefined,
            doctor,

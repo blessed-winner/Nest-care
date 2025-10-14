@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Patch, Query } from '@nestjs/common';
+import { Controller, Post, Body, Patch, Query, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Role } from 'src/user/entities/user.entity';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
@@ -33,7 +33,7 @@ export class AuthController {
     return await this.authService.signUp(dto.email,dto,Role.PATIENT)
   }
 
-  @Patch('/verify-user')
+  @Get('/verify-user')
   @ApiResponse({ status:201, description:"User verified successfully" })
   @ApiResponse({ status:400, description:"Bad Request" })
   async verifyEmail(@Query('token') token:string){
