@@ -7,8 +7,8 @@ export class Doctor {
     @PrimaryGeneratedColumn()
     id: number
 
-    @Column()
-    specialization:string
+    @Column({ nullable:true })
+    specialization?:string
 
     @OneToOne(()=>User, user => user.doctor,{onDelete:'CASCADE'})
     @JoinColumn()

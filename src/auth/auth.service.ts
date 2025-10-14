@@ -28,46 +28,63 @@ export class AuthService {
     private mailerService:MailerService
   ){}
 
-  //Sign Up
-  async signUp(email:string, dto: CreateUserDto,role:Role): Promise<{user?:User,patient?:Patient,doctor?:Doctor,access_token:string}> {
-        const salt = await bcrypt.genSalt()
-        const hashedPassword = await bcrypt.hash(dto.password,salt)
+//Sign Up
+async signUp( email: string, dto: CreateUserDto, role: Role,): Promise<{ message:string, verification_token?: string }>{
+  const salt = await bcrypt.genSalt();
+  const hashedPassword = await bcrypt.hash(dto.password, salt);
 
-        const existingUser = await this.userRepo.findOneBy({email})
-        if(existingUser) throw new BadRequestException("The user already exists. Login instead")
+  const existingUser = await this.userRepo.findOneBy({ email });
+  if (existingUser)
+    throw new BadRequestException('The user already exists. Login instead');
 
-        const user = this.userRepo.create({
-          ...dto,
-          password:hashedPassword,
-          role:role,
-        })
+  const isVerified = role === Role.ADMIN;
 
+  const user = this.userRepo.create({
+    ...dto,
+    password: hashedPassword,
+    role,
+    isVerified, // Admins are auto-verified
+  });
 
-        await this.userRepo.save(user)
+  await this.userRepo.save(user);
 
-        let doctor : Doctor | undefined
-        let patient:Patient | undefined
+  if (role === Role.DOCTOR) {
+    const doctor = this.doctorRepo.create({
+      user,
+      specialization: (dto as CreateDoctorDto).specialization,
+    });
+    await this.doctorRepo.save(doctor);
+  }
 
-        if( role === Role.DOCTOR ){
-          doctor = this.doctorRepo.create({user, specialization:(dto as CreateDoctorDto).specialization})
-          await this.doctorRepo.save(doctor)
-        }
+  if (role === Role.PATIENT) {
+    const patient = this.patientRepo.create({
+      user,
+      dateOfBirth: (dto as CreatePatientDto).dateOfBirth,
+    });
+    await this.patientRepo.save(patient);
+  }
 
-        if(role === Role.PATIENT ){
-          patient = this.patientRepo.create({user,dateOfBirth:(dto as CreatePatientDto).dateOfBirth})
-          await this.patientRepo.save(patient)
-        }
+  // Only unverified users get a token
+  if (!isVerified) {
+    const verification_token = await generateToken(
+      user.id,
+      user.role,
+      this.configService,
+      this.jwtService,
+    );
+    await this.mailerService.sendVerificationEmail(
+      user.email,
+      verification_token,
+      user.firstName,
+    );
+    return { message:"User created successfully. Check your email for verification link", verification_token };
+  }
 
-        const token = await generateToken(user.id,user.role,this.configService,this.jwtService)
-
-        await this.mailerService.sendVerificationEmail(user.email,token,user.firstName)
-
-        return{user: role === Role.ADMIN ? user : undefined,
-           doctor,
-           patient,
-          access_token:token
-        }
+  // Admins or already verified roles don’t need a token
+  return {  message:"User created and verified successfully" };
 }
+
+
 
 //Email verification
 async verifyUser(token: string): Promise<{ message: string }> {
