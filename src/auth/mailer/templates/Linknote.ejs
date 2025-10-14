@@ -154,8 +154,8 @@
       </p>
 
       <div class="actions">
-        <a href="<%= redirectUrl || '/' %>" class="btn btn-primary">Go to Home</a>
-        <form id="resendForm" method="post" action="<%= resendEndpoint || '/auth/resend-verification' %>" style="display:inline">
+        <a href="'/' " class="btn btn-primary">Go to Home</a>
+        <form id="resendForm" method="post" action="/auth/resend-verification" style="display:inline">
           <% if (typeof email !== 'undefined' && email) { %>
             <input type="hidden" name="email" value="<%= email %>"/>
           <% } %>
@@ -170,7 +170,7 @@
       <div class="icon-circle">✓</div>
       <p><strong>Sent — almost done</strong></p>
       <p class="small">We sent an email with a verification link. This link will expire in <span class="countdown" id="countdown">60:00</span> minutes.</p>
-      <p style="margin-top:14px"><a href="<%= supportUrl || 'mailto:support@example.com' %>" class="btn-link">Contact support</a></p>
+      <p style="margin-top:14px"><a href="mailto:support@example.com" class="btn-link">Contact support</a></p>
     </aside>
   </main>
 

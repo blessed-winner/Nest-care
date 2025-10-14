@@ -65,6 +65,11 @@ export class AuthController {
     return result
   }
 
+  @Get('resend-verification')
+  async resendVerificationPage(@Res() res:Response){
+    return res.render('Linknote')
+  }
+
   //Sign in
   @Post('login')
   @ApiBody({ type:LoginDto })
