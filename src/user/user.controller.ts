@@ -42,7 +42,7 @@ export class UserController {
     return this.userService.create(dto.email,dto,Role.PATIENT)
   }
 
-  @Get('All')
+  @Get('all')
   @ApiResponse({
     status: 201,
     description: " List of users ",
@@ -53,7 +53,7 @@ export class UserController {
     return this.userService.findAll();
   }
 
-  @Get(':id')
+  @Get('view/:id')
   @ApiParam({
     name:'id',
     type:String,
@@ -70,7 +70,7 @@ export class UserController {
     return this.userService.findOne(+id);
   }
 
-  @Patch(':id')
+  @Patch('update/:id')
    @ApiParam({
     name:'id',
     type:String,
@@ -83,7 +83,7 @@ export class UserController {
     return this.userService.update(+id, updateUserDto);
   }
 
-  @Delete(':id')
+  @Delete('delete/:id')
    @ApiParam({
     name:'id',
     type:String,
