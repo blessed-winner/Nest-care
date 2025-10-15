@@ -21,58 +21,53 @@ constructor(
   @InjectRepository(Patient)
   private patientRepo: Repository<Patient>
 ){}
-  async create(dto: CreateAppointmentDto,userId:number):Promise<{message:string,appointment:Appointment}> {
-    try {
-      const appointment = this.appointmentRepo.create({
-          ...dto
-        })
-        await this.appointmentRepo.save({
-          doctor:{ id:dto.doctorId },
-          patient:{ id:dto.patientId },
-          appointmentDate:dto.appointmentDate,
-          status:AppStatus.APPROVED,
-          reason:dto.reason
-        })
+  async create(
+  dto: CreateAppointmentDto,
+  userId: number
+): Promise<{ message: string; appointment: Appointment }> {
+  try {
+    const user = await this.userRepo.findOneBy({ id: userId });
+    if (!user) throw new NotFoundException("User not found");
 
-        const user = await this.userRepo.findOneBy({ id:userId })
-        if(user?.role === Role.DOCTOR ){
-             const appointment = this.appointmentRepo.create({
-              ...dto
-             })
-             await this.appointmentRepo.save({
-              doctor: { id:userId },
-              patient: { id:dto.patientId },
-              appointmentDate: dto.appointmentDate,
-              status:AppStatus.APPROVED,
-              reason: dto.reason
-             })
+    let doctorId = dto.doctorId;
+    let patientId = dto.patientId;
+    let status = AppStatus.PENDING; // Default status
 
-              return { message:"Success!!", appointment }
-        }
-
-        if(user?.role === Role.PATIENT ){
-          const appointment = this.appointmentRepo.create({
-            ...dto
-          })
-          await this.appointmentRepo.save({
-              doctor: { id:dto.doctorId },
-              patient: { id:userId },
-              appointmentDate: dto.appointmentDate,
-              reason: dto.reason
-          })
-
-            return { message:"Success!!", appointment }
-        }
-
-       
-        return { message:"Success!!", appointment }
-    } catch (error) {
-       console.log( error )
-       throw new BadRequestException("Error in creating the appointment")
+    // Role-based logic
+    if (user.role === Role.DOCTOR) {
+       const doctor = await this.doctorRepo.findOne({
+        where: { user:{ id: userId } }
+       })
+      doctorId = doctor?.id;
+      status = AppStatus.APPROVED; // Doctors can auto approve
+    } else if (user.role === Role.PATIENT) {
+      const patient  = await this.patientRepo.findOne({
+        where: { user:{ id:userId } }
+      })
+      patientId = patient?.id
+      status = AppStatus.PENDING; // Patients wait for approval
+    } else if (user.role === Role.ADMIN) {
+      
+      status = AppStatus.APPROVED;
     }
-        
 
+    const appointment = this.appointmentRepo.create({
+      doctor: { id: doctorId },
+      patient: { id: patientId },
+      appointmentDate: dto.appointmentDate,
+      reason: dto.reason,
+      status,
+    });
+
+    const savedAppointment = await this.appointmentRepo.save(appointment);
+
+    return { message: "Appointment created successfully", appointment: savedAppointment };
+  } catch (error) {
+    console.error(error);
+    throw new BadRequestException("Error in creating the appointment");
   }
+}
+
 
   async findAll():Promise<Appointment[]> {
        const appointments = await this.appointmentRepo.find({
