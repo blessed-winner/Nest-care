@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, SetMetadata } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, SetMetadata, BadRequestException } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -14,10 +14,10 @@ import { Request } from 'express';
 
 @ApiBearerAuth('jwt')
 @UseGuards(JwtAuthGuard,RolesGuard)
-@Roles(Role.ADMIN)
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
+  @Roles(Role.ADMIN)
   @Post('/create/admin')
   @ApiBody({ type:CreateUserDto })
   @ApiResponse({ status:201, description:"User created successfully" })
@@ -26,6 +26,7 @@ export class UserController {
     return this.userService.create(dto.email,dto,Role.ADMIN)
   }
 
+  @Roles(Role.ADMIN)
   @Post('/create/doctor')
   @ApiBody({ type:CreateDoctorDto })
   @ApiResponse({ status:201, description:"User created successfully" })
@@ -34,6 +35,7 @@ export class UserController {
     return this.userService.create(dto.email,dto,Role.DOCTOR)
   }
 
+  @Roles(Role.ADMIN)
   @Post('/create/patient')
   @ApiBody({ type:CreatePatientDto })
   @ApiResponse({ status:201, description:"User created successfully" })
@@ -42,6 +44,7 @@ export class UserController {
     return this.userService.create(dto.email,dto,Role.PATIENT)
   }
 
+  @Roles(Role.ADMIN)
   @Get('all')
   @ApiResponse({
     status: 201,
@@ -53,6 +56,7 @@ export class UserController {
     return this.userService.findAll();
   }
 
+  @Roles(Role.ADMIN)
   @Get('view/:id')
   @ApiParam({
     name:'id',
@@ -70,6 +74,7 @@ export class UserController {
     return this.userService.findOne(+id);
   }
 
+  @Roles(Role.ADMIN)
   @Patch('update/:id')
    @ApiParam({
     name:'id',
@@ -83,6 +88,7 @@ export class UserController {
     return this.userService.update(+id, updateUserDto);
   }
 
+  @Roles(Role.ADMIN)
   @Delete('delete/:id')
    @ApiParam({
     name:'id',
@@ -97,6 +103,7 @@ export class UserController {
   }
 
  
+  @Roles(Role.ADMIN)
   @Get(':userId/appointments')
   @ApiResponse({ status:201, description:"User appointments" })
   @ApiResponse({ status:400, description:"Failed to fetch user appointments" })
@@ -104,14 +111,21 @@ export class UserController {
      return this.userService.fetchUserAppointments(+userId)
   }
 
-  @SetMetadata('isPublic',true)
   @Get('me/appointments')
   @ApiResponse({status:201, description:"My Appointments"})
   @ApiResponse({status:400, description:"Failed to fetch your appointments.Server error"})
   getMyAppointments(@Req() req:Request){
-    return this.userService.fetchUserAppointments((req.user as User)?.id)
+    const userId = req.user?.id
+    
+    // Validate that userId is a valid number
+    if (!userId || isNaN(userId) || userId <= 0) {
+      throw new BadRequestException('Invalid user ID. Please ensure you are properly authenticated.');
+    }
+    
+    return this.userService.fetchUserAppointments(userId);
   }
 
+  @Roles(Role.ADMIN)
   @Get('doctors/all')
   @ApiResponse({status:201, description:"All Doctors"})
   @ApiResponse({status:400, description:"Problem fetching doctors"})
@@ -119,6 +133,7 @@ export class UserController {
     return this.userService.fetchDoctors()
   }
 
+  @Roles(Role.ADMIN)
   @Get('patients/all')
   @ApiResponse({status:201, description:"All Patients"})
   @ApiResponse({status:400, description:"Problem fetching patients"})

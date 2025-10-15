@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common"
 import { ConfigService } from "@nestjs/config"
-import { JwtService } from "@nestjs/jwt"
 import { PassportStrategy } from "@nestjs/passport"
 import { InjectRepository } from "@nestjs/typeorm"
 import { ExtractJwt, Strategy } from "passport-jwt"
@@ -25,13 +24,19 @@ export class JwtStrategy extends PassportStrategy(Strategy,'jwt'){
         })
     }
 
-    async validate(payload:JwtPayload):Promise<{ id:number, role:Role, }>{
-        const user = await this.userRepo.findOneBy({ id:payload.id })
+    async validate(payload:JwtPayload):Promise<{ user:User }>{
+        const user = await this.userRepo.findOne({ 
+            where:{id:payload.id},
+            select:{
+               id:true,
+               role:true
+            }
+         })
 
         if(!user){
             throw new NotFoundException("User Not Found")
         }
 
-        return { id:user.id, role:user.role}
+        return { user }
     }
 }
