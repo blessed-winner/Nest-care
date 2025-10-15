@@ -108,5 +108,10 @@ export class AppointmentController {
     return this.appointmentService.remove(+id);
   }
 
+  @Get('me')
+  getMyAppointments(){
+    
+  }
+
 
 }

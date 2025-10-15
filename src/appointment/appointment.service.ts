@@ -68,6 +68,55 @@ constructor(
   }
 }
 
+async findMyAppointments(userId:number){
+  try {
+   const user = await this.userRepo.findOneBy({ id:userId })
+    if(user?.role ===  Role.DOCTOR){
+      const appointments = await this.appointmentRepo.find({
+        where: { doctor: { user: { id:userId } } },
+        select:{
+          id:true,
+          patient:{
+             id:true,
+             user:{
+               firstName:true,
+               lastName:true
+             }
+          },
+          appointmentDate:true,
+          reason:true
+        }
+      })
+
+      return { message:"Your appointments", appointments }
+    }
+
+    if(user?.role === Role.PATIENT){
+        const appointments = await this.appointmentRepo.find({
+        where: { patient: { user: { id:userId } } },
+        select:{
+          id:true,
+          doctor:{
+             id:true,
+             user:{
+               firstName:true,
+               lastName:true
+             }
+          },
+          appointmentDate:true,
+          reason:true
+        }
+      })
+
+      return{ message:"Your appointments", appointments }
+    }
+  } catch (error) {
+      console.log( error )
+      throw new BadRequestException("Failed to fetch your appointments")
+  }
+
+}
+
 
   async findAll():Promise<Appointment[]> {
        const appointments = await this.appointmentRepo.find({
