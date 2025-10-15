@@ -4,7 +4,7 @@ import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGenerat
 
 export enum AppStatus{
     PENDING = 'pending',
-    COMPLETED = 'completed',
+    APPROVED = 'approved',
     CANCELLED = 'cancelled'
 }
 

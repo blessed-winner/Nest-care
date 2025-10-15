@@ -24,7 +24,7 @@ export class JwtStrategy extends PassportStrategy(Strategy,'jwt'){
         })
     }
 
-    async validate(payload:JwtPayload):Promise<{ user:User }>{
+    async validate(payload:JwtPayload):Promise<{ id:number, role:Role }>{
         const user = await this.userRepo.findOne({ 
             where:{id:payload.id},
             select:{
@@ -37,6 +37,6 @@ export class JwtStrategy extends PassportStrategy(Strategy,'jwt'){
             throw new NotFoundException("User Not Found")
         }
 
-        return { user }
+        return  { id:user.id, role:user.role } 
     }
 }

@@ -9,14 +9,15 @@ import { ApiBearerAuth, ApiBody, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { UserResponseDto } from './dto/user-response-dto';
 import { JwtAuthGuard } from 'src/utils/guards/jwt.guard';
 import { RolesGuard } from 'src/utils/guards/roles.guard';
-import { Roles } from 'src/utils/decorator/roles.decorator';
+import { Roles, ROLES_KEY } from 'src/utils/decorator/roles.decorator';
 import { Request } from 'express';
 
-@ApiBearerAuth('jwt')
-@UseGuards(JwtAuthGuard,RolesGuard)
+
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
+  @ApiBearerAuth('jwt')
+  @UseGuards(JwtAuthGuard,RolesGuard)
   @Roles(Role.ADMIN)
   @Post('/create/admin')
   @ApiBody({ type:CreateUserDto })
@@ -26,6 +27,8 @@ export class UserController {
     return this.userService.create(dto.email,dto,Role.ADMIN)
   }
 
+  @ApiBearerAuth('jwt')
+  @UseGuards(JwtAuthGuard,RolesGuard)
   @Roles(Role.ADMIN)
   @Post('/create/doctor')
   @ApiBody({ type:CreateDoctorDto })
@@ -35,6 +38,8 @@ export class UserController {
     return this.userService.create(dto.email,dto,Role.DOCTOR)
   }
 
+  @ApiBearerAuth('jwt')
+  @UseGuards(JwtAuthGuard,RolesGuard)
   @Roles(Role.ADMIN)
   @Post('/create/patient')
   @ApiBody({ type:CreatePatientDto })
@@ -43,7 +48,8 @@ export class UserController {
   async createPatient(@Body() dto:CreatePatientDto){
     return this.userService.create(dto.email,dto,Role.PATIENT)
   }
-
+  @ApiBearerAuth('jwt')
+  @UseGuards(JwtAuthGuard,RolesGuard)
   @Roles(Role.ADMIN)
   @Get('all')
   @ApiResponse({
@@ -56,6 +62,8 @@ export class UserController {
     return this.userService.findAll();
   }
 
+  @ApiBearerAuth('jwt')
+  @UseGuards(JwtAuthGuard,RolesGuard)
   @Roles(Role.ADMIN)
   @Get('view/:id')
   @ApiParam({
@@ -74,6 +82,8 @@ export class UserController {
     return this.userService.findOne(+id);
   }
 
+  @ApiBearerAuth('jwt')
+  @UseGuards(JwtAuthGuard,RolesGuard)
   @Roles(Role.ADMIN)
   @Patch('update/:id')
    @ApiParam({
@@ -88,6 +98,8 @@ export class UserController {
     return this.userService.update(+id, updateUserDto);
   }
 
+  @ApiBearerAuth('jwt')
+  @UseGuards(JwtAuthGuard,RolesGuard)
   @Roles(Role.ADMIN)
   @Delete('delete/:id')
    @ApiParam({
@@ -102,7 +114,8 @@ export class UserController {
     return this.userService.remove(+id);
   }
 
- 
+  @ApiBearerAuth('jwt')
+  @UseGuards(JwtAuthGuard,RolesGuard)
   @Roles(Role.ADMIN)
   @Get(':userId/appointments')
   @ApiResponse({ status:201, description:"User appointments" })
@@ -111,20 +124,8 @@ export class UserController {
      return this.userService.fetchUserAppointments(+userId)
   }
 
-  @Get('me/appointments')
-  @ApiResponse({status:201, description:"My Appointments"})
-  @ApiResponse({status:400, description:"Failed to fetch your appointments.Server error"})
-  getMyAppointments(@Req() req:Request){
-    const userId = req.user?.id
-    
-    // Validate that userId is a valid number
-    if (!userId || isNaN(userId) || userId <= 0) {
-      throw new BadRequestException('Invalid user ID. Please ensure you are properly authenticated.');
-    }
-    
-    return this.userService.fetchUserAppointments(userId);
-  }
-
+  @ApiBearerAuth('jwt')
+  @UseGuards(JwtAuthGuard,RolesGuard)
   @Roles(Role.ADMIN)
   @Get('doctors/all')
   @ApiResponse({status:201, description:"All Doctors"})
@@ -133,6 +134,8 @@ export class UserController {
     return this.userService.fetchDoctors()
   }
 
+  @ApiBearerAuth('jwt')
+  @UseGuards(JwtAuthGuard,RolesGuard)
   @Roles(Role.ADMIN)
   @Get('patients/all')
   @ApiResponse({status:201, description:"All Patients"})

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, BadRequestException } from '@nestjs/common';
 import { AppointmentService } from './appointment.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
@@ -7,22 +7,40 @@ import { AppointmentResponseDto } from './dto/appointment-response.dto';
 import { JwtAuthGuard } from 'src/utils/guards/jwt.guard';
 import { RolesGuard } from 'src/utils/guards/roles.guard';
 import { Roles } from 'src/utils/decorator/roles.decorator';
-import { Role } from 'src/user/entities/user.entity';
+import { Role, User } from 'src/user/entities/user.entity';
+import { Request } from 'express';
 
-@ApiBearerAuth('jwt')
-@UseGuards(JwtAuthGuard,RolesGuard)
+
 @Controller('appointment')
 export class AppointmentController {
-  constructor(private readonly appointmentService: AppointmentService) {}
+  constructor(
+    private readonly appointmentService: AppointmentService,
+  ) {}
 
+  @ApiBearerAuth('jwt')
+  @UseGuards(JwtAuthGuard)
   @Post('/create')
   @ApiBody({type:CreateAppointmentDto})
   @ApiResponse({ status:201, description:"Appointment created successfully" })
   @ApiResponse({ status:400, description:"Bad request" })
-  create(@Body() createAppointmentDto: CreateAppointmentDto) {
-    return this.appointmentService.create(createAppointmentDto);
+  create(
+    @Body() createAppointmentDto: CreateAppointmentDto,
+    @Req()  req:Request
+  ){
+    try{
+      const user = req.user as { id:number, role:Role }
+      const userId = user.id
+      return this.appointmentService.create(createAppointmentDto,+userId);
+    }
+    catch(error){
+      console.log( error )
+      throw new BadRequestException("Error creating appointment")
+    }
+    
   }
 
+  @ApiBearerAuth('jwt')
+  @UseGuards(JwtAuthGuard,RolesGuard)
   @Roles(Role.ADMIN)
   @Get('/all')
   @ApiResponse({
@@ -38,6 +56,8 @@ export class AppointmentController {
     return this.appointmentService.findAll();
   }
 
+  @ApiBearerAuth('jwt')
+  @UseGuards(JwtAuthGuard,RolesGuard)
   @Roles(Role.ADMIN)
   @Get(':id')
   @ApiParam({
@@ -56,6 +76,8 @@ export class AppointmentController {
     return this.appointmentService.findOne(+id);
   }
   
+  @ApiBearerAuth('jwt')
+  @UseGuards(JwtAuthGuard,RolesGuard)
   @Roles(Role.ADMIN)
   @Patch(':id')
   @ApiParam({
@@ -70,6 +92,8 @@ export class AppointmentController {
     return this.appointmentService.update(+id, updateAppointmentDto);
   }
 
+  @ApiBearerAuth('jwt')
+  @UseGuards(JwtAuthGuard,RolesGuard)
   @Roles(Role.ADMIN)
   @Delete(':id')
     @ApiParam({
@@ -83,5 +107,6 @@ export class AppointmentController {
   remove(@Param('id') id: string) {
     return this.appointmentService.remove(+id);
   }
+
 
 }
