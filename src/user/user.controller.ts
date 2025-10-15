@@ -107,8 +107,22 @@ export class UserController {
   @SetMetadata('isPublic',true)
   @Get('me/appointments')
   @ApiResponse({status:201, description:"My Appointments"})
-  @ApiResponse({status:400, description:"Your appointments are not found"})
+  @ApiResponse({status:400, description:"Failed to fetch your appointments.Server error"})
   getMyAppointments(@Req() req:Request){
     return this.userService.fetchUserAppointments((req.user as User)?.id)
+  }
+
+  @Get('doctors/all')
+  @ApiResponse({status:201, description:"All Doctors"})
+  @ApiResponse({status:400, description:"Problem fetching doctors"})
+  getAllDoctors(){
+    return this.userService.fetchDoctors()
+  }
+
+  @Get('patients/all')
+  @ApiResponse({status:201, description:"All Patients"})
+  @ApiResponse({status:400, description:"Problem fetching patients"})
+  getAllPatients(){
+    return this.userService.fetchPatients()
   }
 }

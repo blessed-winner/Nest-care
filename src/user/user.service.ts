@@ -60,7 +60,13 @@ export class UserService {
 
   async findAll(): Promise<User[]> {
     return await this.userRepo.find({
-      relations:['patient','doctor']
+      relations:['patient','doctor'],
+      select: { 
+        id:true,
+        firstName:true,
+        lastName:true,
+        email:true
+      }
     })
   }
 
@@ -83,7 +89,13 @@ export class UserService {
   async findOne(id:number):Promise<{user:User}>{
        const user = await this.userRepo.findOne({ 
          where: { id },
-         relations: [ 'patient','doctor' ]
+         relations: [ 'patient','doctor' ],
+         select: { 
+           id:true,
+           firstName:true,
+           lastName:true,
+           email:true
+          }
         })
        if(!user) throw new NotFoundException("User Not Found")
        return { user }
@@ -98,7 +110,7 @@ async fetchUserAppointments(userId:number): Promise<{message:string,appointments
       if(user.role === Role.DOCTOR){
          const doctor = await this.doctorRepo.findOne({
           where: { user:{id:userId} },
-          relations: [ "appointments" ]
+          relations: [ "appointments" ],
          })
          const appointments = doctor?.appointments || []
 
@@ -118,9 +130,18 @@ async fetchUserAppointments(userId:number): Promise<{message:string,appointments
 
   }
 
-  async fetchDoctors():Promise<{message?:string,doctors:Doctor[] | []}>{
+  async fetchDoctors():Promise<{message?:string,doctors:User[] | []}>{
     try {
-      const doctors = await this.doctorRepo.find()
+      const doctors = await this.userRepo.find({
+        where: { role:Role.DOCTOR },
+        relations: [ 'doctor' ],
+        select: {
+          id:true,
+          firstName:true,
+          lastName:true,
+          email: true
+        }
+      })
       return { doctors }
 
     } catch (error) {
@@ -128,9 +149,18 @@ async fetchUserAppointments(userId:number): Promise<{message:string,appointments
     }
   }
 
-  async fetchPatients():Promise<{message?:string, patients:Patient[] | []}>{
+  async fetchPatients():Promise<{message?:string, patients:User[] | []}>{
     try {
-      const patients = await this.patientRepo.find()
+      const patients = await this.userRepo.find({
+          where: { role:Role.PATIENT },
+          relations: [ 'patient' ],
+          select: {
+          id:true,
+          firstName:true,
+          lastName:true,
+          email: true
+        }
+      })
       return { patients }
     } catch (error) {
        return { message:error.message, patients: [] }

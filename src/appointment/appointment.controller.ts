@@ -24,7 +24,7 @@ export class AppointmentController {
   }
 
   @Roles(Role.ADMIN)
-  @Get('/All')
+  @Get('/all')
   @ApiResponse({
     status:201,
     type:[AppointmentResponseDto],
