@@ -33,7 +33,8 @@ export class UserService {
       const user = this.userRepo.create({
         ...dto,
         password:hashedPassword,
-        role:role
+        role:role,
+        isVerified:true
       })
 
       await this.userRepo.save(user)
@@ -115,6 +116,25 @@ async fetchUserAppointments(userId:number): Promise<{message:string,appointments
          return { message:"No appointments Found",appointments:[]}
       }
 
+  }
+
+  async fetchDoctors():Promise<{message?:string,doctors:Doctor[] | []}>{
+    try {
+      const doctors = await this.doctorRepo.find()
+      return { doctors }
+
+    } catch (error) {
+      return { message:error.message, doctors: [] }
+    }
+  }
+
+  async fetchPatients():Promise<{message?:string, patients:Patient[] | []}>{
+    try {
+      const patients = await this.patientRepo.find()
+      return { patients }
+    } catch (error) {
+       return { message:error.message, patients: [] }
+    }
   }
 
 }
